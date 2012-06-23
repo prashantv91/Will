@@ -1,3 +1,4 @@
+; Functions for processing rules.
 (load "base.lisp")
 
 (setf *knowledge-dir* "knowledge")   ; Relative path to directory with rule files. 
@@ -14,29 +15,29 @@
 
 (defun extract-action-var (lst)
   ; Returns symbol of logic variable for action list in given rule or goals (@lst).
-  (let ((last-thing (get-last lst)))
-    (if (atom last-thing)
-      (if (eql last-thing '??)
-        nil
-        last-thing)
-      (extract-action-var (get-last lst)))))
+  (get-last lst))
+
+(defun get-rule-body (lst)
+  (if (atom (car lst))
+    nil
+    (cons (car lst) (get-rule-body (cdr lst)))))
 
 (defun process-rule (rule)
   ; Processes @rule before it is added to rulebase, adding action list.
   ; ((a 1) (b 2) ... (c 3)) -> ((a 1 #1 #2) (b 2 (#1 #3)) ... (c 3 #n #2))
   (let* ((firstarg (gen-logic-var)) 
-         (body (process-rule-body (cdr rule) firstarg))
-         (lastarg (extract-action-var body)))          ; Find better way to do this.
+         (inter-body (process-rule-body (cdr rule) firstarg))
+         (lastarg (extract-action-var inter-body))
+         (body (get-rule-body inter-body)))          ; Find better way to do this.
     (format t "Processing: ~A~%~%" rule)
-    (if (null lastarg)
-      (cons (append (car rule) (list firstarg firstarg)) body)
-      (cons (append (car rule) (list firstarg lastarg)) body))))
+    (cons (append (car rule) (list firstarg lastarg)) body)))
 
 (defun process-rule-body (rule arg)
   ; Processes body of rule, adding action list.
-  ; ((a 1) (b 2)) -> ((a 1 #1 #2) (b 2 #2 #3))
+  ; ((a 1) (b 2)) -> ((a 1 #1 #2) (b 2 #2 #3) #3)
     ; (cons `(lisp (format t "~A~%" ,arg))
-  (unless (null rule)
+  (if (null rule)
+    (list arg)
     (let* ((rule-part (car rule)) 
            (action-part (cadr rule-part)) 
            (nextarg (gen-logic-var)))
@@ -44,15 +45,26 @@
         ('lisp
          (cons rule-part
                (process-rule-body (cdr rule) arg)))
+        ('lop
+         (cons rule-part
+               (process-rule-body (cdr rule) arg)))
+        ('cut
+         (cons rule-part
+               (process-rule-body (cdr rule) arg)))
         ('action
-         (cons (list 'rev-is `(list ,action-part ,@arg) nextarg) ; Find better way to parse.
+         (cons (list 'rev-is `(list ,action-part ,@arg) nextarg)
                (process-rule-body (cdr rule) nextarg)))
         ('if
          (cons (append (cadr rule-part) (list nil '??))
                (process-rule-body (cdr rule) arg)))
-        ('not  ; FIX THIS!!!
-         (cons (list 'not (append (cadr rule-part) (list nil '??)))
-               (process-rule-body (cdr rule) arg)))
+        ('not  
+         (case (car (cadr rule-part))
+           ('lop
+            (cons (list 'not (cadr rule-part))
+                  (process-rule-body (cdr rule) arg)))
+           (otherwise
+             (cons (list 'not (append (cadr rule-part) (list nil '??)))
+                   (process-rule-body (cdr rule) arg)))))
         (otherwise
           (cons (append rule-part (list arg nextarg))
                 (process-rule-body (cdr rule) nextarg)))))))

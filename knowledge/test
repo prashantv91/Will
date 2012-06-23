@@ -11,9 +11,18 @@
 ((kill dragon sheep) (lisp (format t "kill dragon sheep~%")) (alive dragon))
 ((save ?x) (lisp (format t "save ~A~%" ?x)) (if (kill ?y ?x)) (kill ?z ?y))
 
-((c ?x) (lisp (format t "c")) (action (c ?x)))
+;((c ?x) (lisp (format t "c")) (action (c ?x)))
 
-((b ?x) (lisp (format t "b")) (not (c ?x)) (action (b ?x)))
+;((b ?x) (lisp (format t "b")) (not (c ?x)) (action (b ?x)))
 
-((d ?x) (lisp (format t "d")) (not (b ?x)))
+;((d ?x) (lisp (format t "d")) (not (b ?x)))
+
+
+((survive) (eat) (rest))
+
+((eat) (lisp (format t "eaten?~%")) (lop (eaten)) (cut))
+((eat) (action (eat)))
+
+((rest) (lisp (format t "rested?~%")) (not (lop (fatigued))) (cut))
+((rest) (action (rest)))
 

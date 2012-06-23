@@ -1,3 +1,4 @@
+; Some common functions.
 
 (defmacro with-prob (prob &rest body)
   ; Perform @body with probability @prob.
