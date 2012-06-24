@@ -1,9 +1,12 @@
 ; Functions for processing rules.
 (load "base.lisp")
 
-(setf *knowledge-dir* "knowledge")   ; Relative path to directory with rule files. 
-(setf *basic-rules-file* "basic")    ; Do not pre-process rules from this file.
-(setf *rules-files* '("basic" "test")) ; Rules files.
+(asdf:oos 'asdf:load-op :gambol)
+(use-package :gambol)
+
+(defparameter *knowledge-dir* "knowledge" "Relative path to directory with rule files.")
+(defparameter *basic-rules-file* "basic" "Do not pre-process rules from this file.")
+(defparameter *rules-files* '("basic" "test") "Rules files.")
 
 (defun gen-logic-var ()
   ; Generate a symbol to be used as logic variable.
@@ -29,13 +32,13 @@
          (inter-body (process-rule-body (cdr rule) firstarg))
          (lastarg (extract-action-var inter-body))
          (body (get-rule-body inter-body)))          ; Find better way to do this.
-    (format t "Processing: ~A~%~%" rule)
+    (dbgprint "Processing: ~A~%~%" rule)
     (cons (append (car rule) (list firstarg lastarg)) body)))
 
 (defun process-rule-body (rule arg)
   ; Processes body of rule, adding action list.
   ; ((a 1) (b 2)) -> ((a 1 #1 #2) (b 2 #2 #3) #3)
-    ; (cons `(lisp (format t "~A~%" ,arg))
+    ; (cons `(lisp (dbgprint "~A~%" ,arg))
   (if (null rule)
     (list arg)
     (let* ((rule-part (car rule)) 
