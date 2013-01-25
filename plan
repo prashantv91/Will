@@ -1,0 +1,26 @@
+Will (working title)
+A simulation.
+
+Everything below under review since cl-tcod was discovered.
+
+Frontend and backend to be separate and communicate using sockets.
+
+Frontend
+    UI and other meta-things that are not really part of the game.
+    In Python (curses not straightforward in Lisp).
+    Drawing to screen and input.
+        Screen resizing.
+    Communicate with backend by TCP.
+    
+    Does not know anything that the player(character) does not - this is ensured by the info it receives.
+
+Backend
+    The game itself.
+    In Lisp (experimenting).
+    
+
+
+
+
+
+
