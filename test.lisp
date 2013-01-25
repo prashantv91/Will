@@ -1,19 +1,20 @@
-(asdf:operate 'asdf:load-op 'cffi)
+(in-package sb-bsd-sockets)
 
-(asdf:operate 'asdf:load-op 'trivial-gray-streams)
+(setf server (make-instance 'inet-socket :type :stream :protocol :tcp))
 
-(load "curses.lisp")
+(socket-bind server
+             (car (host-ent-addresses (get-host-by-name (machine-instance))))
+               2218)
 
-(in-package :curses)
+(socket-listen server 5)
 
-(connect-console)
+(setf newsock (socket-accept server))
 
-(erase)
+(socket-send newsock "Hello World." 13)
 
-(attrset :cpurple)
+(socket-receive newsock nil 20)
 
-(mvaddstr 2 2 "Hello World!")
+(socket-peername newsock)
 
-(refresh)
 
-(+ 1 2)
+
