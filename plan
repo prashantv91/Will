@@ -1,8 +1,6 @@
 Will (working title)
 A simulation.
 
-Everything below under review since cl-tcod was discovered.
-
 Frontend and backend to be separate and communicate using sockets.
 
 Frontend

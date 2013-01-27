@@ -1,0 +1,8 @@
+; Constants and configuration for the server.
+; Will be loaded by the server on startup.
+; (<var-name> <value>)
+
+(*server-port* 2218)
+
+
+

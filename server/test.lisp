@@ -16,5 +16,8 @@
 
 (socket-peername newsock)
 
+(socket-close server)
 
+(socket-name server)
 
+(non-blocking-mode server) 

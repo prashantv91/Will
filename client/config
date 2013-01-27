@@ -1,0 +1,7 @@
+# Constants and configuration for the client. 
+# Will be read by the client on startup.
+# <var-name> = <value>
+
+SERVER = localhost
+SERVER_PORT = 2218
+
