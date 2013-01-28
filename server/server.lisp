@@ -62,18 +62,18 @@
   )
 
 
-(setf sock (start-server 2218))
-
-(setf sock2 (get-client sock))
-
-(send-full sock2 "Hello")
-
-(receive-full sock2 10)
-
-(setf pk (receive sock2))
-
-(send sock2 pk)
-
-(* pk 2)
-
-(socket-close sock)
+;(setf sock (start-server 2218))
+;
+;(setf sock2 (get-client sock))
+;
+;(send-full sock2 "Hello")
+;
+;(receive-full sock2 10)
+;
+;(setf pk (receive sock2))
+;
+;(send sock2 pk)
+;
+;(* pk 2)
+;
+;(socket-close sock2)
