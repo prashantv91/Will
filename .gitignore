@@ -2,3 +2,7 @@ Downloads/
 Material/
 Old/
 *.swp
+client/libtcod.so
+client/libtcodpy.py
+client/libSDL.so
+*.pyc
