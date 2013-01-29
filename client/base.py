@@ -4,6 +4,14 @@ class Config():
     # Dummy class to store global constants from config file.
     pass
 
+class Position():
+    # To store position of something.
+    def __init__(self, _y, _x):     # (y,x) in curses convention.
+        self.y = _y
+        self.x = _x
+
+
+
 def is_int(string):
     # Does @string represent an integer?
     try:
