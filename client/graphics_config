@@ -1,0 +1,10 @@
+# Sprite settings for various objects.
+# Format: item/creature/terrain:<name>:<character>:<foreground colour>:<background colour>(optional - leave out for default)
+# Colours: black, blue, cyan, green, magenta, red, white, yellow
+
+terrain:grass:.:green
+
+creature:dog:d:magenta:white
+
+item:biscuit:%:red
+
