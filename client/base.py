@@ -6,9 +6,9 @@ class Config():
 
 class Position():
     # To store position of something.
-    def __init__(self, _y, _x):     # (y,x) in curses convention.
-        self.y = _y
-        self.x = _x
+    def __init__(self, y, x):     # (y,x) in curses convention.
+        self.y = y
+        self.x = x
 
 
 

@@ -7,6 +7,7 @@ colour_pair_map = {}        # Maps pairs of colours to colour pair numbers, as i
 creature_sprites = {}       # Maps from object name to colour pairs. These three filled in from config file by load_graphics_file().
 item_sprites = {}
 terrain_sprites = {}
+map_pads = {}               # Stores map pads against map names.
 
 colours = {'black':curses.COLOR_BLACK, 'blue':curses.COLOR_BLUE, 'cyan':curses.COLOR_CYAN, 'green':curses.COLOR_GREEN, \
         'magenta':curses.COLOR_MAGENTA, 'red':curses.COLOR_RED, 'white':curses.COLOR_WHITE, 'yellow':curses.COLOR_YELLOW, 'background': -1}
@@ -31,22 +32,36 @@ class Map_screen(object):
     def __init__(self, stdscr):
         if not self.__instantiated:
             self.map_pad = None
-            self.map_screen_yx = stdscr.getmayx()          # This is what will change when more windows come in.
+            self.map_screen_start = Position(0, 0)
+            self.map_screen_limits = Position(stdscr.getmayx()[0], stdscr.getmayx()[1])          # (height, width). This is what will change when more windows come in.
             self.__instantiated = True
         
-    def init_map_pad(self, pad):
-        # Initialises map_pad to pad.
-        self.map_pad = pad
+    def init_map_pad(self, name, height, width):
+        # Retrieve map pad from dict if it exists, else create new one.
+        #self.map_pad = pad
+        if name in map_pads.keys():
+            self.map_pad = map_pads[name]
+        else:
+            self.map_pad = curses.newpad(height, width)
+            map_pads[name] = self.map_pad
 
-    def set_map_pad(self, pos, sprite):
-        # Currently not used. Use Map's set_map_pad() instead.
-        self.map_pad.addch(pos.y, pos.x, sprite.char, sprite.colour_pair)
+    def set_map_pad(self, pos, sprite, bold = False):
+        if bold:
+            self.map_pad.addch(pos.y, pos.x, sprite.char, sprite.colour_pair | curses.A_BOLD)
+        else:
+            self.map_pad.addch(pos.y, pos.x, sprite.char, sprite.colour_pair)
 
-    def refresh(self):
-        pass
+    def draw(self, center):
+        # Draw from the current pad to screen, centered around @center on the pad. 
+        # Check the values.
+        start_y = max(0, center.y - self.map_screen_limits.y/2)     # Starting position on the pad.
+        start_x = max(0, center.x - self.map_screen_limits.x/2)
+        screen_start_y = self.map_screen_start.y + max(0, (self.map_screen_limits.y/2 - self.map_pad.getmaxyx()[0]/2))      # Starting position on the window.
+        screen_start_x = self.map_screen_start.x + max(0, (self.map_screen_limits.x/2 - self.map_pad.getmaxyx()[1]/2))
+        screen_end_y = self.map_screen_start.y + min(self.map_screen_limits.y, self.map_pad.getmaxyx()[0])
+        screen_end_x = self.map_screen_start.x + min(self.map_screen_limits.x, self.map_pad.getmaxyx()[1])
 
-    def draw(self):
-        pass
+        self.map_pad.refresh(start_y, start_x, screen_start_y, screen_start_x, screen_end_y, screen_end_x)
 
 def init_graphics(graphics_config_file):
     curses.curs_set(0)

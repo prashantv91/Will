@@ -32,19 +32,17 @@ class Tile():
 
 class Map():
     # A rectangular collection of tiles.
-    def init(self, name, height, width, screen):
+    def init(self, name, height, width, screen, playerpos = Position(0, 0)):
         self.name = name
         self.height = height
         self.width = width
         self.map = [[Tile() for i in range(self.width)] for j in range(self.height)]
         self.screen = screen
-        self.map_pad = curses.newpad(self.height, self.width)
+        self.playerpos = playerpos                  # Decide on how to maintain this.
+        #self.map_pad = curses.newpad(self.height, self.width)           # BAD
 
-    def set_map_pad(self, pos, sprite, bold = False):
-        if bold:
-            self.map_pad.addch(pos.y, pos.x, sprite.char, sprite.colour_pair | curses.A_BOLD)
-        else:
-            self.map_pad.addch(pos.y, pos.x, sprite.char, sprite.colour_pair)
+    def set_map_pad(self, pos, sprite, visible):
+        self.screen.set_map_pad(pos, sprite, visible)
 
     def update_tile(self, pos, terrain = -1, creature = -1, items = -1, visible = False):
         # Updates tile at (pos.y, pos.x). Couldn't use None as invalid indicator.
@@ -75,8 +73,10 @@ class Map():
 
     def sync_screen(self):
         # Synchronises screen.map_pad with this map.
-        self.screen.init_map_pad(self.map_pad)
+        self.screen.init_map_pad(self.name, self.height, self.width)
         
-
+    def draw(self):
+        # Get the map updated on the screen.
+        self.screen.draw(self.playerpos)
     
 
