@@ -3,6 +3,7 @@
 # Colours: black, blue, cyan, green, magenta, red, white, yellow
 
 terrain:grass:.:green
+terrain:wall:#:red
 
 creature:dog:d:magenta:white
 

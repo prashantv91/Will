@@ -10,6 +10,19 @@ class Position():
         self.y = y
         self.x = x
 
+    def n(self):                      # Movement functions. Abbreviated.
+        self.y -= 1
+    def e(self):
+        self.x += 1
+    def s(self):
+        self.y += 1
+    def w(self):
+        self.x -= 1
+
+    def move(self, dir):
+        # For convenience while testing.
+        {0:self.n, 1:self.e, 2:self.s, 3:self.w}[dir%4]()
+
 
 
 def is_int(string):
