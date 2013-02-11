@@ -86,10 +86,12 @@ class Map():
 
 def map_test(stdscr):
     graphics.init_graphics(stdscr, 'graphics_config')
-    player_pos = Position(25, 60)
-    M = Map(name = 'map0', height = 50, width = 120, player_pos = Position(5, 5))
+    map_height = 50
+    map_width = 120
+    player_pos = Position(map_height/2, map_width/2)
+    M = Map(name = 'map0', height = map_height, width = map_width, player_pos = Position(5, 5))
     
-    for pos in positions(50, 120):
+    for pos in positions(map_height, map_width):
         if random.randint(0,1) == 0:
             M.set_tile(pos, Terrain('grass'))
         else:
@@ -105,13 +107,13 @@ def map_test(stdscr):
         key = graphics.getch()
         old_pos.y = player_pos.y
         old_pos.x = player_pos.x
-        if key == ord('d') and player_pos.x < 119:
+        if key == ord('d') and player_pos.x < map_width-1:
             player_pos.e()
         elif key == ord('a') and player_pos.x > 0:
             player_pos.w()
         elif key == ord('w') and player_pos.y > 0:
             player_pos.n()
-        elif key == ord('s') and player_pos.y < 49:
+        elif key == ord('s') and player_pos.y < map_height-1:
             player_pos.s()
         else:
             if chr(key) not in ['w', 'a', 's', 'd']:
@@ -120,7 +122,7 @@ def map_test(stdscr):
         M.update_player_pos(player_pos)
         graphics.update_map(M, [old_pos, player_pos])
         graphics.draw_map(player_pos)
-        graphics.debug_output(M.player_pos.y, M.player_pos.x, old_pos.y, old_pos.x)
+        #graphics.debug_output(M.player_pos.y, M.player_pos.x, old_pos.y, old_pos.x)
         
     time.sleep(1)
 
