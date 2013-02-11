@@ -74,4 +74,24 @@ def str2int(string, base = 256):
         ret += ord(string[i]) * (base ** i)
     return ret
 
+def positions(height, width):
+    # Generator to iterate through positions from (0, 0) to (height-1, width-1).
+    for y in range(0, height):
+        for x in range(0, width):
+            yield Position(y, x)
+
+
+# The following is to implement singleton pattern.
+instances = {}
+def get_instance(Class, *args):
+    # Store one instance of each class in a dict.
+    if Class not in instances.keys():
+        instances[Class] = Class(*args)
+    return instances[Class]
+
+def singleton(Class):
+    # Decorator.
+    def on_call(*args):
+        return get_instance(Class, *args)
+    return on_call
 

@@ -1,27 +1,28 @@
 # Contains declarations for storing map info.
 
-from graphics import *
-import random
+import graphics, curses
+from base import *
+import random, time
 
 class Creature():
-    # Stores the type of craeture, it's sprite and an annotation.
+    # Stores the type of creature, it's sprite and an annotation.
     def __init__(self, name = '', annotation = ''):
         self.name = name
-        self.sprite = creature_sprites[name]
+        self.sprite = graphics.creature_sprites[name]
         self.annotation = annotation
 
 class Item():
     # Stores the type of item, it's sprite and an annotation.
     def __init__(self, name = '', annotation = ''):
         self.name = name
-        self.sprite = item_sprites[name]
+        self.sprite = graphics.item_sprites[name]
         self.annotation = annotation
 
 class Terrain():
     # To store info about a particular terrain. Might be more useful later.
     def __init__(self, name):
         self.name = name
-        self.sprite = terrain_sprites[name]
+        self.sprite = graphics.terrain_sprites[name]
 
 class Tile():
     # Info for a map tile.
@@ -33,18 +34,13 @@ class Tile():
 
 class Map():
     # A rectangular collection of tiles.
-    def __init__(self, name, height, width, screen, player_pos = Position(0, 0), player_creature = None):
+    def __init__(self, name, height, width, player_pos = Position(0, 0), player_creature = None):
         self.name = name
         self.height = height
         self.width = width
         self.map = [[Tile() for i in range(self.width)] for j in range(self.height)]
-        self.screen = Map_screen(screen)
         self.player_pos = player_pos                  # Decide on how to maintain this.
         self.player_creature = player_creature        # And this. Currently there for testing.  
-        #self.map_pad = curses.newpad(self.height, self.width)           # BAD
-
-    def set_map_pad(self, pos, sprite, visible = False):
-        self.screen.set_map_pad(pos, sprite, visible)
 
     def update_tile(self, pos, terrain = -1, creature = -1, items = -1, visible = False):
         # Updates tile at (pos.y, pos.x). Couldn't use None as invalid indicator.
@@ -55,23 +51,23 @@ class Map():
         if creature != -1:
             self.map[pos.y][pos.x].creature = creature
         self.map[pos.y][pos.x].visible = visible
-        
+    
+    def get_visibility(self, pos):
+        # Returns True if tile at @pos is visible.
+        return self.map[pos.y][pos.x].visible
+
+    def get_tile_sprite(self, pos):
+        # Returns sprite for the tile at @pos.
         if self.map[pos.y][pos.x].items == [] and self.map[pos.y][pos.x].creature == None:
-            self.set_map_pad(pos, self.map[pos.y][pos.x].terrain.sprite, visible)
+            return self.map[pos.y][pos.x].terrain.sprite
         elif self.map[pos.y][pos.x].items != [] and self.map[pos.y][pos.x].creature == None:
-            self.set_map_pad(pos, self.map[pos.y][pos.x].items[0].sprite)
+            return self.map[pos.y][pos.x].items[0].sprite
         else:
-            self.set_map_pad(pos, self.map[pos.y][pos.x].creature.sprite)
+            return self.map[pos.y][pos.x].creature.sprite
 
     def set_tile(self, pos, terrain, creature = None, items = []):
         # Sets tile at (pos.y, pos.x) and updates this instance's map_pad.
         self.map[pos.y][pos.x] = Tile(terrain, creature, items)
-        if self.map[pos.y][pos.x].items == [] and self.map[pos.y][pos.x].creature == None:
-            self.set_map_pad(pos, self.map[pos.y][pos.x].terrain.sprite)
-        elif self.map[pos.y][pos.x].items != [] and self.map[pos.y][pos.x].creature == None:
-            self.set_map_pad(pos, self.map[pos.y][pos.x].items[0].sprite)
-        else:
-            self.set_map_pad(pos, self.map[pos.y][pos.x].creature.sprite)
 
     def set_player(self, player_pos, player_creature):
         # Temporary, for testing.
@@ -87,51 +83,47 @@ class Map():
         self.player_pos.x = player_pos.x
         self.update_tile(self.player_pos, creature = self.player_creature)
     
-    def sync_screen(self):
-        # Synchronises screen.map_pad with this map.
-        self.screen.init_map_pad(self.name, self.height, self.width)
-        
-    def draw(self):
-        # Get the map updated on the screen.
-        self.screen.draw(self.player_pos)
-    
 
 def map_test(stdscr):
-    init_graphics('graphics_config')
-    pos = Position(25, 60)
-    M = Map(name = 'map0', height = 50, width = 120, screen = stdscr, player_pos = Position(5, 5))
-    M.sync_screen()
-    for i in range(50):
-        for j in range(120):
-            if random.randint(0,1) == 0:
-                M.set_tile(Position(i,j), Terrain('grass'))
-            else:
-                M.set_tile(Position(i,j), Terrain('wall'))  
-
-    M.set_player(pos, Creature('dog'))
-    M.draw()
+    graphics.init_graphics(stdscr, 'graphics_config')
+    player_pos = Position(25, 60)
+    M = Map(name = 'map0', height = 50, width = 120, player_pos = Position(5, 5))
     
-    while True:
-        key = M.screen.map_pad.getch()
-        if key == ord('d'):
-            pos.e()
-        elif key == ord('a'):
-            pos.w()
-        elif key == ord('w'):
-            pos.n()
-        elif key == ord('s'):
-            pos.s()
+    for pos in positions(50, 120):
+        if random.randint(0,1) == 0:
+            M.set_tile(pos, Terrain('grass'))
         else:
-            break
+            M.set_tile(pos, Terrain('wall'))  
+
+    M.set_player(player_pos, Creature('dog'))
+    
+    graphics.use_map(M)
+    old_pos = Position(0, 0)
+
+    graphics.draw_map(player_pos)
+    while True:
+        key = graphics.getch()
+        old_pos.y = player_pos.y
+        old_pos.x = player_pos.x
+        if key == ord('d') and player_pos.x < 119:
+            player_pos.e()
+        elif key == ord('a') and player_pos.x > 0:
+            player_pos.w()
+        elif key == ord('w') and player_pos.y > 0:
+            player_pos.n()
+        elif key == ord('s') and player_pos.y < 49:
+            player_pos.s()
+        else:
+            if chr(key) not in ['w', 'a', 's', 'd']:
+                break
           
-        M.update_player_pos(pos)
-        M.draw()
-        #curses_debug('%d %d' % (M.player_pos.y, M.player_pos.x))
+        M.update_player_pos(player_pos)
+        graphics.update_map(M, [old_pos, player_pos])
+        graphics.draw_map(player_pos)
+        graphics.debug_output(M.player_pos.y, M.player_pos.x, old_pos.y, old_pos.x)
         
     time.sleep(1)
 
-#print curses.color_pair(0)
 
 curses.wrapper(map_test)
-#map_test(None)
 
