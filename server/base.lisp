@@ -1,5 +1,9 @@
 ; Contains fundamental definitions added in the spur of many moments.
 
+(in-package :will.base)
+
+(defparameter *DEBUG* t "Determines whether debug messages are printed.")
+
 (defun cd (path)
   ; Incomplete - cannot go back.
   (setf *default-pathname-defaults* (make-pathname :name path)))
@@ -29,6 +33,37 @@
 
 
 
+(defun expand-slots (args)
+  ; Used to add keyword arguments to slot declarations by defclass-2.
+  (unless (null args)
+    (let ((slot-name (car (car args))) 
+          (slot-val (unless (null (cdr (car args)))
+                      (cadr (car args)))))
+      (cons
+        `(,slot-name :accessor ,slot-name 
+                    :initarg ,(intern (string-upcase slot-name) :keyword)
+                    :initform ,slot-val)
+        (unless (null (cdr args))
+          (expand-slots (cdr args)))))))
+
+(defmacro defclass-2 (name superclasses slots)
+  ; For easy declaration of slots in defclass. 
+  ; Eg: (defclass-2 a () ((slot1 default-value) ... ))
+  `(defclass ,name ,superclasses ,(expand-slots slots)))
+
+(defun get-last (lst)
+  ; Returns last element in list @lst.
+  (unless (null lst)
+    (if (null (cdr lst))
+      (car lst)
+      (get-last (cdr lst)))))
+
+(defun cdr-assoc (key lst)
+  ; Get only the data in a key-data pair (@key is key in assoc list @lst).
+  (unless (null lst)
+    (cdr (assoc key lst))))
+
+
 (defun load-config-file (file-name)
   ; Loads constants from the file file-name, which should be in the same directory as this.
   (with-open-file (file 
@@ -39,6 +74,5 @@
       ((eql pair 'EOF))(progn
       (setf (symbol-value (car pair)) (cadr pair))
       (print pair)))))
-
 
 

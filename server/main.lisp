@@ -1,10 +1,10 @@
 ; Starts everything up.
 
+(in-package :will.main)
+
 (load-config-file "config")     ; Hard-coded.
 
-(load "server.lisp")
-
-(start-server server-port)
+;(start-server server-port)
 
 
 

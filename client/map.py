@@ -4,11 +4,11 @@ import graphics, curses
 from base import *
 import random, time
 
-class Creature():
-    # Stores the type of creature, it's sprite and an annotation.
+class Monster():
+    # Stores the type of monster, it's sprite and an annotation.
     def __init__(self, name = '', annotation = ''):
         self.name = name
-        self.sprite = graphics.creature_sprites[name]
+        self.sprite = graphics.monster_sprites[name]
         self.annotation = annotation
 
 class Item():
@@ -26,30 +26,30 @@ class Terrain():
 
 class Tile():
     # Info for a map tile.
-    def __init__(self, terrain = None, creature = None, items = [], visible = False):
+    def __init__(self, terrain = None, monster = None, items = [], visible = False):
         self.terrain = terrain
-        self.creature = creature
+        self.monster = monster
         self.items = items
         self.visible = visible
 
 class Map():
     # A rectangular collection of tiles.
-    def __init__(self, name, height, width, player_pos = Position(0, 0), player_creature = None):
+    def __init__(self, name, height, width, player_pos = Position(0, 0), player_monster = None):
         self.name = name
         self.height = height
         self.width = width
         self.map = [[Tile() for i in range(self.width)] for j in range(self.height)]
         self.player_pos = player_pos                  # Decide on how to maintain this.
-        self.player_creature = player_creature        # And this. Currently there for testing.  
+        self.player_monster = player_monster        # And this. Currently there for testing.  
 
-    def update_tile(self, pos, terrain = -1, creature = -1, items = -1, visible = False):
+    def update_tile(self, pos, terrain = -1, monster = -1, items = -1, visible = False):
         # Updates tile at (pos.y, pos.x). Couldn't use None as invalid indicator.
         if terrain != -1:
             self.map[pos.y][pos.x].terrain = terrain
         if items != -1:
             self.map[pos.y][pos.x].items = items
-        if creature != -1:
-            self.map[pos.y][pos.x].creature = creature
+        if monster != -1:
+            self.map[pos.y][pos.x].monster = monster
         self.map[pos.y][pos.x].visible = visible
     
     def get_visibility(self, pos):
@@ -58,30 +58,30 @@ class Map():
 
     def get_tile_sprite(self, pos):
         # Returns sprite for the tile at @pos.
-        if self.map[pos.y][pos.x].items == [] and self.map[pos.y][pos.x].creature == None:
+        if self.map[pos.y][pos.x].items == [] and self.map[pos.y][pos.x].monster == None:
             return self.map[pos.y][pos.x].terrain.sprite
-        elif self.map[pos.y][pos.x].items != [] and self.map[pos.y][pos.x].creature == None:
+        elif self.map[pos.y][pos.x].items != [] and self.map[pos.y][pos.x].monster == None:
             return self.map[pos.y][pos.x].items[0].sprite
         else:
-            return self.map[pos.y][pos.x].creature.sprite
+            return self.map[pos.y][pos.x].monster.sprite
 
-    def set_tile(self, pos, terrain, creature = None, items = []):
+    def set_tile(self, pos, terrain, monster = None, items = []):
         # Sets tile at (pos.y, pos.x) and updates this instance's map_pad.
-        self.map[pos.y][pos.x] = Tile(terrain, creature, items)
+        self.map[pos.y][pos.x] = Tile(terrain, monster, items)
 
-    def set_player(self, player_pos, player_creature):
+    def set_player(self, player_pos, player_monster):
         # Temporary, for testing.
         self.player_pos.y = player_pos.y
         self.player_pos.x = player_pos.x
-        self.player_creature = player_creature
-        self.update_tile(self.player_pos, creature = self.player_creature)
+        self.player_monster = player_monster
+        self.update_tile(self.player_pos, monster = self.player_monster)
     
     def update_player_pos(self, player_pos):
         # Temporary, for testing.
-        self.update_tile(self.player_pos, creature = None)
+        self.update_tile(self.player_pos, monster = None)
         self.player_pos.y = player_pos.y
         self.player_pos.x = player_pos.x
-        self.update_tile(self.player_pos, creature = self.player_creature)
+        self.update_tile(self.player_pos, monster = self.player_monster)
     
 
 def map_test(stdscr):
@@ -97,7 +97,7 @@ def map_test(stdscr):
         else:
             M.set_tile(pos, Terrain('wall'))  
 
-    M.set_player(player_pos, Creature('dog'))
+    M.set_player(player_pos, Monster('dog'))
     
     graphics.use_map(M)
     old_pos = Position(0, 0)

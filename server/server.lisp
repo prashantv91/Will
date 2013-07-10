@@ -1,6 +1,6 @@
 ; Contains functions that handle networking for the server.
 
-(use-package :sb-bsd-sockets)
+(in-package :will.server)
 
 (defstruct packet 
   ; Structure to store network packets.

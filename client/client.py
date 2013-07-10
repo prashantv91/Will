@@ -36,13 +36,17 @@ class Socket():
         return sent
     
     def connect(self, server, server_port):
-        # Connects to specified port on the specified server and returns the corresponding socket.
+        # Connects to specified port on the specified server.
+        if self.sock != None:
+            self.disconnect()
+
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((server, server_port))
     
     def disconnect(self):
         # For completeness.
         self.sock.close()
+        self.sock = None
     
     def send(self, packet):
         # Sends a packet as specified by the Packet object @packet.
