@@ -2,11 +2,19 @@
 
 (in-package :will.server)
 
+(defparameter protocol-map nil)     ; Mapping from message types to integers that are sent over network.
+
 (defstruct packet 
   ; Structure to store network packets.
-  type
-  length
+  type_
+  length_
   data)
+
+(defun pr-to-int (msg-type)
+  (cdr-assoc msg-type protocol-map))
+
+(defun int-to-pr (msg-type-num)
+  (cdr-rassoc msg-type-num protocol-map))
 
 (defun receive-full (socket len)
   ; To ensure everything is received.
@@ -45,21 +53,52 @@
 
 (defun receive (socket)
   ; Receives and returns a packet object.
-  (let* ((msg-type (str-to-int (socket-receive socket nil 1)))
+  (let* ((msg-type (int-to-pr (str-to-int (socket-receive socket nil 1))))
          (msg-len  (str-to-int (socket-receive socket nil 4)))
          (msg      (receive-full socket msg-len)))
-    (make-packet :type msg-type :length msg-len :data msg)))
+    (make-packet :type_ msg-type :length_ msg-len :data msg)))
 
 (defun send (socket pkt)
   ; Sends a packet as specified by the packet object @pkt.
   (unless (not (packet-p pkt))
-    (socket-send socket (int-to-str (packet-type pkt) 1) 1)
-    (socket-send socket (int-to-str (packet-length pkt) 4) 4)
+    (socket-send socket (int-to-str (pr-to-int (packet-type_ pkt)) 1) 1)
+    (socket-send socket (int-to-str (packet-length_ pkt) 4) 4)
     (send-full socket (packet-data pkt))))
 
-(let ((server-socket nil) (server-running? nil) (client-socket nil))        ; Clients management soon to come.
+(defun receive-cond (socket msg-type)
+  ; Eats packets until one of type @msg-type is found and returns its msg.
+  (let ((pkt (receive socket)))
+    (if (eql (packet-type_ pkt) msg-type)
+      (packet-data pkt)
+      (receive-cond socket msg-type))))
 
-  )
+(defun receive-msg (socket)
+  ; Receives a packet and returns only the msg.
+  (socket-receive socket nil 1)
+  (let* ((msg-len  (str-to-int (socket-receive socket nil 4)))
+         (msg      (receive-full socket msg-len)))
+    msg))   
+
+(defun send-msg (socket msg-type msg)
+  ; Computes message length and sends, without need for packet object.
+  (socket-send socket (int-to-str (pr-to-int msg-type) 1) 1)
+  (socket-send socket (int-to-str (length msg) 4) 4)
+  (send-full socket msg))
+
+
+(defun load-protocol-file (file-name)
+  ; Fills the table protocol-map, which is a mapping from message types to integers.
+  (with-open-file (file 
+                    (make-pathname :name file-name :directory '(:relative "."))
+                    :direction :input)
+    (do ((pair (read file nil 'EOF)
+               (read file nil 'EOF)))
+      ((eql pair 'EOF))
+      (progn
+        (setf protocol-map (acons (car pair) (cadr pair) protocol-map))
+        (debug-print pair)
+        (debug-print protocol-map))))) 
+
 
 
 ;(setf sock (start-server 2218))

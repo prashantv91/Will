@@ -3,18 +3,23 @@
 
 (in-package :will.animate)
 
-(defparameter *monsters* nil)   ; Stores the species, the leaves of the tree of monster classes.
+(defparameter *species* nil)   ; Stores the species, the leaves of the tree of monster classes.
 
 (defmacro defmonsterclass (&rest args)
-  (eval (cons 'defclass-2 args)))
+  ; To define a class broader than a species.
+  (cons 'defclass-2 args))
 
 (defmacro defmonster (&rest args)
+  ; To define a species.
   (progn 
-    (setf *monsters* (cons (car args) *monsters*))
-    (eval (cons 'defclass-2 args))))
+    (setf *species* (cons (car args) *species*))
+    (cons 'defclass-2 args)))
 
 (defmonsterclass monster ()
-                 ((brain nil)))
+                 ((brain nil)
+                  (backup-brain nil)
+                  (possessed nil)
+                  (lock (make-mutex))))
 
 (defmonsterclass canine (monster)
                  ((forelimb 2)

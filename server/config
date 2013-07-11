@@ -3,6 +3,7 @@
 ; (<var-name> <value>)
 
 (*server-port* 2218)
+(*max-clients* 5)       ; Max number of clients.
 
 
 

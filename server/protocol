@@ -1,0 +1,8 @@
+; Message type - number mappings for the network protocol. Copy to client also.
+; Will be loaded by the server on startup.
+; (<msg-type> <number>)
+
+(initialise 0)
+(terminate 1)
+(update 2)
+(get-move 3)

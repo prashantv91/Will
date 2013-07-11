@@ -4,6 +4,10 @@
 
 (defparameter *DEBUG* t "Determines whether debug messages are printed.")
 
+(defun debug-print (msg)
+  (if *DEBUG*
+    (print msg)))
+
 (defun cd (path)
   ; Incomplete - cannot go back.
   (setf *default-pathname-defaults* (make-pathname :name path)))
@@ -63,6 +67,10 @@
   (unless (null lst)
     (cdr (assoc key lst))))
 
+(defun cdr-rassoc (key lst)
+  ; Get only the data in a key-data pair (@key is key in assoc list @lst).
+  (unless (null lst)
+    (cdr (rassoc key lst))))
 
 (defun load-config-file (file-name)
   ; Loads constants from the file file-name, which should be in the same directory as this.
@@ -71,8 +79,9 @@
                     :direction :input)
     (do ((pair (read file nil 'EOF)
                (read file nil 'EOF)))
-      ((eql pair 'EOF))(progn
-      (setf (symbol-value (car pair)) (cadr pair))
-      (print pair)))))
+      ((eql pair 'EOF))
+      (progn
+        (setf (symbol-value (car pair)) (cadr pair))
+        (debug-print pair)))))
 
 
