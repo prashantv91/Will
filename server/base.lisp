@@ -4,9 +4,16 @@
 
 (defparameter *DEBUG* t "Determines whether debug messages are printed.")
 
-(defun debug-print (msg)
+(defun debug-print (msg &rest extra)
   (if *DEBUG*
-    (print msg)))
+    (if (null extra)
+      (progn
+        (format t "~a~%" msg)
+        (finish-output nil))
+      (progn
+        (apply #'format t msg extra)
+        (format t "~%")
+        (finish-output nil)))))
 
 (defun cd (path)
   ; Incomplete - cannot go back.

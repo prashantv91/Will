@@ -40,7 +40,9 @@
     (socket-bind server-socket
                  (car (host-ent-addresses (get-host-by-name (machine-instance))))
                  server-port)
+    (setf (sockopt-reuse-address server-socket) t)
     (socket-listen server-socket backlog)
+    (debug-print (format nil "Started server on port ~a." server-port))
     server-socket))
 
 (defun stop-server (server-socket)
@@ -56,6 +58,7 @@
   (let* ((msg-type (int-to-pr (str-to-int (socket-receive socket nil 1))))
          (msg-len  (str-to-int (socket-receive socket nil 4)))
          (msg      (receive-full socket msg-len)))
+    (debug-print "Receiving packet (Type: ~a, Content: ~a)." msg-type msg)
     (make-packet :type_ msg-type :length_ msg-len :data msg)))
 
 (defun send (socket pkt)
@@ -68,7 +71,7 @@
 (defun receive-cond (socket msg-type)
   ; Eats packets until one of type @msg-type is found and returns its msg.
   (let ((pkt (receive socket)))
-    (if (eql (packet-type_ pkt) msg-type)
+    (if (eql (packet-type_ pkt) (pr-to-int msg-type))
       (packet-data pkt)
       (receive-cond socket msg-type))))
 
@@ -96,8 +99,7 @@
       ((eql pair 'EOF))
       (progn
         (setf protocol-map (acons (car pair) (cadr pair) protocol-map))
-        (debug-print pair)
-        (debug-print protocol-map))))) 
+        (debug-print pair))))) 
 
 
 

@@ -8,4 +8,11 @@
   ; under mutex.
   )
 
+(defmethod possess (monster-info client-sock)
+  ; The most generic possession. Write a :before method.
+  (debug-print "Possessing.")
+  (debug-print monster-info)
+  ; (debug-print client-sock)
+  
+  )
 

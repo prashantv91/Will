@@ -37,5 +37,6 @@
         :sb-thread
         :will.base
         :will.server
-        :will.animate))
+        :will.animate)
+  (:export  :start-off))
 
