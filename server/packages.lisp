@@ -9,6 +9,11 @@
            :cdr-assoc       :cdr-rassoc     :load-config-file   :*DEBUG*
            :debug-print))
 
+(defpackage :will.heap
+  (:use :common-lisp
+        :will.base)
+  (:export  :make-heap      :heap-push      :heap-pop))
+
 (defpackage :will.server
   (:use :common-lisp
         :sb-bsd-sockets

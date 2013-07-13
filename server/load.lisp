@@ -4,6 +4,8 @@
 
 (load "base.lisp")
 
+(load "heap.lisp")
+
 (load "server.lisp")
 
 (load "brains.lisp")
