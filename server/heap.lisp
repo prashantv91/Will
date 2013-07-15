@@ -22,6 +22,7 @@
 (defun heap-parent (index)
   (multiple-value-bind (quotient remainder)
     (floor index 2)
+    remainder
     quotient))
 
 (defun heap-left (index)
@@ -67,7 +68,7 @@
             (do-it-next (heap-parent index))))))))
 
 
-(defun make-heap (&optional (initial-heap-size 16) &key (cmp #'<))
+(defun make-heap (&key (initial-heap-size 16) (cmp #'<))
   ; Create and return a heap object, with empty heap of size @initial-heap-size.
   (make-instance 'heap 
                  :heap-array (make-array initial-heap-size 
@@ -86,14 +87,25 @@
     (incf next)))
 
 (defun heap-pop (heap_)
-  ; Pop the top of the heap and return the value.
+  ; Pop the top of the heap and return as cons (key . value).
   (with-slots ((arr heap-array) (next next-index)) heap_
     (if (= next 1)
       nil
-      (let ((retval (heap-node-value (aref arr 1))))
+      (let ((retkey (heap-node-key (aref arr 1)))
+            (retval (heap-node-value (aref arr 1))))
         (decf next)
         (setf (aref arr 1) (aref arr next))
         (put-in-place heap_ 1)
-        retval))))
+        (cons retkey retval)))))
+
+(defun heap-empty (heap_)
+  ; Is the heap empty?
+  (if (= (next-index heap_) 1)
+    t
+    nil))
+
+(defun heap-size (heap_)
+  ; Returns the size of the heap.
+  (- (next-index heap_) 1))
 
 

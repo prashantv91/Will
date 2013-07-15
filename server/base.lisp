@@ -57,7 +57,7 @@
         (unless (null (cdr args))
           (expand-slots (cdr args)))))))
 
-(defmacro defclass-2 (name superclasses slots)
+(defmacro defclass-2 (name superclasses &optional (slots nil))
   ; For easy declaration of slots in defclass. 
   ; Eg: (defclass-2 a () ((slot1 default-value) ... ))
   `(defclass ,name ,superclasses ,(expand-slots slots)))

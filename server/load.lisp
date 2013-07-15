@@ -11,7 +11,9 @@
 (load "brains.lisp")
 
 (load "animate.lisp")
-(load "monster.lisp")
+
+(load "event.lisp")
+(load "simulator.lisp")
 
 (load "main.lisp")
 

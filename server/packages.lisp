@@ -12,7 +12,8 @@
 (defpackage :will.heap
   (:use :common-lisp
         :will.base)
-  (:export  :make-heap      :heap-push      :heap-pop))
+  (:export  :make-heap      :heap-push      :heap-pop           :heap-empty     
+            :heap-size))
 
 (defpackage :will.server
   (:use :common-lisp
@@ -34,14 +35,22 @@
         :will.base
         :will.server
         :will.brains)
-  (:export  :*species*      :dog
-            :possess))
+  (:export  :*species*      :dog))
   
+(defpackage :will.simulator
+  (:use :common-lisp
+        :sb-thread
+        :will.base
+        :will.heap
+        :will.animate)
+  (:export  :possess))
+
 (defpackage :will.main
   (:use :common-lisp
         :sb-thread
         :will.base
         :will.server
-        :will.animate)
+        :will.animate
+        :will.simulator)
   (:export  :start-off))
 
