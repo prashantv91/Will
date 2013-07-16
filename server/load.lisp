@@ -12,6 +12,9 @@
 
 (load "animate.lisp")
 
+(load "map.lisp")
+(load "mapgen.lisp")
+
 (load "event.lisp")
 (load "simulator.lisp")
 

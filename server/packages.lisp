@@ -37,6 +37,10 @@
         :will.brains)
   (:export  :*species*      :dog))
   
+(defpackage :will.map
+  (:use :common-lisp
+        :will.base))
+
 (defpackage :will.simulator
   (:use :common-lisp
         :sb-thread
